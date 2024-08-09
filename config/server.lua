@@ -2,9 +2,9 @@ return {
     plantCheck = 10, -- seconds
 
     seedItems = {
-        ['weed_seed'] = {
-            plantType = 'weed',
-            plantStage = 1,
+        ['weed_seed'] = { -- Item name
+            plantType = 'weed', -- plant type
+            plantStage = 1, -- default stage the plant starts at.
         },
     }
 
@@ -15,9 +15,9 @@ return {
                 water = 5,
             },
             harvest = {
-                item = 'weed_bud',
-                min = 5,
-                max = 10,
+                item = 'weed_bud', -- Item reward on harvest
+                min = 5, -- Minimum amount of items
+                max = 10, -- Maximum amount of items
             },
             growthItems = {
                 food = {

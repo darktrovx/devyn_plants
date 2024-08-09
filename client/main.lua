@@ -206,7 +206,7 @@ lib.callback.register('plant:plant', function(plantType)
 
     if coords then
         IN_PROGRESS = true
-        if exports.ui:progressBar({
+        if lib.progressBar({
             label = "Planting",
             duration = 5000,
             useWhileDead = false,
@@ -237,7 +237,7 @@ lib.callback.register('plant:harvest', function()
     if IN_PROGRESS or PLACING then return false end
 
     IN_PROGRESS = true
-    if exports.ui:progressBar({
+    if lib.progressBar({
         label = "Harvesting",
         duration = 5000,
         useWhileDead = false,
@@ -264,7 +264,7 @@ lib.callback.register('plant:destroy', function()
     if IN_PROGRESS or PLACING then return false end
 
     IN_PROGRESS = true
-    if exports.ui:progressBar({
+    if lib.progressBar({
         label = "Destroying",
         duration = 15000,
         useWhileDead = false,
