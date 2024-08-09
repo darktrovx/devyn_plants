@@ -1,30 +1,15 @@
 return {
     ['weed'] = {
         [1] = {
-            model = 'bzzz_plants_weed_green_small',
+            model = 'bkr_prop_weed_01_small_01a',
             offset = vector3(0.0, 0.0, 0.1),
         },
         [2] = {
-            model = 'bzzz_plants_weed_green_medium',
+            model = 'bkr_prop_weed_med_01a',
             offset = vector3(0.0, 0.0, 0.1),
         },
         [3] = {
-            model = 'bzzz_plants_weed_green_big',
-            offset = vector3(0.0, 0.0, 0.5),
-        },
-    },
-    
-    ['tree'] = {
-        [1] = {
-            model = 'prop_sapling_break_02',
-            offset = vector3(0.0, 0.0, 0.1),
-        },
-        [2] = {
-            model = 'prop_tree_cedar_s_02',
-            offset = vector3(0.0, 0.0, 0.1),
-        },
-        [3] = {
-            model = 'prop_tree_cedar_03',
+            model = 'bkr_prop_weed_lrg_01a',
             offset = vector3(0.0, 0.0, 0.5),
         },
     },

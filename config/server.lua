@@ -1,5 +1,13 @@
 return {
     plantCheck = 10, -- seconds
+
+    seedItems = {
+        ['weed_seed'] = {
+            plantType = 'weed',
+            plantStage = 1,
+        },
+    }
+
     plantTypes = {
         ['weed'] = {
             defaults = {

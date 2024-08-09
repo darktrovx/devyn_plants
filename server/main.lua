@@ -31,7 +31,7 @@ local function createPlant(plantData)
     if id then
         local invId = ('plant:%s'):format(uuid)
         lib.logger(0, 'plant_create', ('Created plant uuid: %s'):format(uuid))
-        exports.ox_inventory:RegisterStash(invId, ('%s plant'):format(plantData.type), 2, 100000)
+        ox_inventory:RegisterStash(invId, ('%s plant'):format(plantData.type), 2, 100000)
         TriggerClientEvent("plants:addPlant", -1, plantId, plants[plantId])
         return uuid
     else
@@ -117,7 +117,7 @@ RegisterNetEvent('plant:harvestPlant', function(data)
                 amount += plant.data.bonus
 
                 ox_inventory:AddItem(src, item, amount)
-                lib.logger(src, 'plant_harvest', ('Citizen ID: %s harvested weed uuid: %s at coords: %s'):format(player.PlayerData.citizenid, plant.uuid, plantCoords))
+                lib.logger(src, 'plant_harvest', ('Citizen ID: %s harvested %s uuid: %s at coords: %s'):format(player.PlayerData.citizenid, plant.type, plant.uuid, plantCoords))
             else
                 exports.qbx_core:ExploitBan(src, ('Invalid Plant ID'):format(plantId))
             end
@@ -148,7 +148,7 @@ RegisterNetEvent('plant:destroyPlant', function(data)
             local player = exports.qbx_core:GetPlayer(src)
 
             if removePlant(plantId) then            
-                lib.logger(src, 'plant_destroy', ('Citizen ID: %s destroyed weed uuid: %s at coords: %s'):format(player.PlayerData.citizenid, plant.uuid, plantCoords))
+                lib.logger(src, 'plant_destroy', ('Citizen ID: %s destroyed %s uuid: %s at coords: %s'):format(player.PlayerData.citizenid, plant.type, plant.uuid, plantCoords))
             else
                 exports.qbx_core:ExploitBan(src, ('Invalid Plant ID'):format(plantId))
             end
@@ -168,47 +168,53 @@ end)
 
 -- items
 
-exports.qbx_core:CreateUseableItem('weed_seed', function(source, item)
-    local player = exports.qbx_core:GetPlayer(source)
-	if player.Functions.GetItemByName(item.name) == nil then return end
+for seed, seedData in pairs(config.seedItems) do
+    exports.qbx_core:CreateUseableItem(seed, function(source, item)
+        local player = exports.qbx_core:GetPlayer(source)
+        if player.Functions.GetItemByName(item.name) == nil then return end
 
-    local slot = item.slot
-    local strain = item.metadata.strain or 'none'
-
-    local coords = lib.callback.await('plant:plant', source, 'weed')
-
-    if coords then
-
-        local removed, resp = exports.ox_inventory:RemoveItem(source, 'weed_seed', 1, false, item.slot)
-
-        if removed then
-
-            local planted = createPlant({
-                type = 'weed',
-                data = {
-                    coords = coords,
-                    strain = strain,
-                    food = config.plantTypes['weed'].defaults.food,
-                    water = config.plantTypes['weed'].defaults.water,
-                    decayTick = 0,
-                    bonus = 0,
-                }
-            })
-
-            if planted then
-                lib.logger(source, 'plant_weed', ('Citizen ID: %s planted weed at coords: %s'):format(player.PlayerData.citizenid, coords))
-                TriggerClientEvent('ox_lib:notify', source, {type = 'success', title = 'Plant', description = 'You have planted a seed' })
+        if not config.plantTypes[seedData.plantType] then
+            TriggerClientEvent('ox_lib:notify', source, {type = 'error', title = 'Plant', description = 'Invalid plant type' })
+            return
+        end
+    
+        local slot = item.slot
+        local strain = item.metadata.strain or 'none'
+    
+        local coords = lib.callback.await('plant:plant', source, seedData.plantType)
+    
+        if coords then
+    
+            local removed, resp = ox_inventory:RemoveItem(source, seed, 1, false, item.slot)
+    
+            if removed then
+    
+                local planted = createPlant({
+                    type = seedData.plantType,
+                    data = {
+                        coords = coords,
+                        strain = strain,
+                        food = config.plantTypes[seedData.plantType].defaults.food,
+                        water = config.plantTypes[seedData.plantType].defaults.water,
+                        decayTick = 0,
+                        bonus = 0,
+                    }
+                })
+    
+                if planted then
+                    lib.logger(source, 'plant_seed', ('Citizen ID: %s planted % at coords: %s'):format(player.PlayerData.citizenid, seedData.plantType, coords))
+                    TriggerClientEvent('ox_lib:notify', source, {type = 'success', title = 'Plant', description = 'You have planted a seed' })
+                else
+                    TriggerClientEvent('ox_lib:notify', source, {type = 'error', title = 'Plant', description = 'Failed to plant seed' })
+                end
             else
-                TriggerClientEvent('ox_lib:notify', source, {type = 'error', title = 'Plant', description = 'Failed to plant seed' })
+                TriggerClientEvent('ox_lib:notify', source, {type = 'error', title = 'Plant', description = 'You do not have this item' })
             end
         else
-            TriggerClientEvent('ox_lib:notify', source, {type = 'error', title = 'Plant', description = 'You do not have this item' })
+            TriggerClientEvent('ox_lib:notify', source, {type = 'error', title = 'Plant', description = 'Planting cancelled' })
         end
-    else
-        TriggerClientEvent('ox_lib:notify', source, {type = 'error', title = 'Plant', description = 'Planting cancelled' })
-    end
-
-end)
+    end)
+end
 
 -- threads
 
@@ -224,7 +230,7 @@ CreateThread(function()
             plantDate = plant.plantDate,
         }
         local invId = ('plant:%s'):format(plant.uuid)
-        exports.ox_inventory:RegisterStash(invId, ('%s plant'):format(plant.type), 2, 100000)
+        ox_inventory:RegisterStash(invId, ('%s plant'):format(plant.type), 2, 100000)
     end
 end)
 
@@ -235,7 +241,7 @@ CreateThread(function()
             local plant = lib.table.deepclone(plantData)
             --print(('Checking plant ID: %s uuid: %s'):format(plantId, plant.uuid))
             local invId = ('plant:%s'):format(plant.uuid)
-            local plantItems = exports.ox_inventory:GetInventoryItems(invId)
+            local plantItems = ox_inventory:GetInventoryItems(invId)
             local plantType = config.plantTypes[plant.type]
             
             -- ================ PLANT FOOD LOGIC ================
@@ -253,7 +259,7 @@ CreateThread(function()
                         if plantItems[item] then
                             hasFood = plantItems[item].count
                             --print('Removing 1 food item')
-                            exports.ox_inventory:RemoveItem(invId, item, 1, false, plantItems[item].slot)
+                            ox_inventory:RemoveItem(invId, item, 1, false, plantItems[item].slot)
                             break
                         end
                     end
@@ -267,7 +273,7 @@ CreateThread(function()
                         if plantItems[item] then
                             hasWater = plantItems[item].count
                             --print('Removing 1 water item')
-                            exports.ox_inventory:RemoveItem(invId, item, 1, false, plantItems[item].slot)
+                            ox_inventory:RemoveItem(invId, item, 1, false, plantItems[item].slot)
                             break
                         end
                     end

@@ -6,6 +6,3 @@ CREATE TABLE `plants` (
 	`plantdate` INT(11) NOT NULL,
 	UNIQUE INDEX `uuid` (`uuid`) USING BTREE
 )
-COLLATE='utf8mb3_general_ci'
-ENGINE=InnoDB
-;
